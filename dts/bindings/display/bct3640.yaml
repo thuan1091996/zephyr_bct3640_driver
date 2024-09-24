@@ -1,0 +1,5 @@
+description: BCT3640 LED Display Driver
+
+compatible: "broadchip,bct3640"
+
+include: [spi-device.yaml, display-controller.yaml]

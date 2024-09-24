@@ -1,0 +1,5 @@
+config BCT3640
+    bool "BCT3640 LED Display Driver"
+    depends on SPI
+    help
+      Enable driver for BCT3640 LED Display Driver.

@@ -69,10 +69,15 @@ static int bct3640_write_data(const struct device *dev, uint8_t addr,
   const struct bct3640_config *config = dev->config;
   struct bct3640_data *driver_data = dev->data;
 
-  if (addr >= BCT3640_GRIDS_PER_DEVICE ||
-      addr + len > BCT3640_GRIDS_PER_DEVICE)
+  if (addr >= BCT3640_GRIDS_PER_DEVICE) // addr should be less than BCT3640_GRIDS_PER_DEVICE
   {
     return -EINVAL;
+  }
+  if (addr + len > BCT3640_GRIDS_PER_DEVICE) // addr + len should be less than BCT3640_GRIDS_PER_DEVICE
+  {
+    LOG_WRN("%d (addr + len) should be less than %d", addr + len, BCT3640_GRIDS_PER_DEVICE);
+    LOG_WRN("Data will be truncated");
+    len = BCT3640_GRIDS_PER_DEVICE - addr;
   }
 
   int ret = bct3640_write_command(dev, BCT3640_CMD_ADDRESS_SETTING | addr);
@@ -94,8 +99,8 @@ static int bct3640_write_data(const struct device *dev, uint8_t addr,
   return 0;
 }
 
-static int bct3640_write(const struct device *dev, const uint16_t x,
-                         const uint16_t y,
+static int bct3640_write(const struct device *dev, 
+                         const uint16_t x, const uint16_t y,
                          const struct display_buffer_descriptor *desc,
                          const void *buf)
 {

@@ -137,11 +137,15 @@ static void *bct3640_get_framebuffer(const struct device *dev)
   return NULL; 
 }
 
-static int bct3640_set_brightness(const struct device *dev, const uint8_t brightness)
+static int bct3640_set_brightness(const struct device *dev, uint8_t brightness)
 {
-  uint8_t pwm_setting = brightness & BCT3640_DISPLAY_PWM_MASK;
-  return bct3640_write_command(dev, BCT3640_CMD_DISPLAY_CONTROL |
-                                        BCT3640_DISPLAY_ON | pwm_setting);
+      // Convert 0-255 brightness to 0-7 BCT3640 brightness
+    uint8_t bct3640_brightness = (brightness * BCT3640_DISPLAY_PWM_14_16) / 255;
+    if (brightness > BCT3640_DISPLAY_PWM_14_16) {
+        return -EINVAL;
+    }
+
+    return bct3640_write_command(dev, BCT3640_CMD_DISPLAY_CONTROL | BCT3640_DISPLAY_ON | bct3640_brightness);
 }
 
 static int bct3640_set_contrast(const struct device *dev,
@@ -192,14 +196,11 @@ static int bct3640_init(const struct device *dev)
     LOG_ERR("Failed to set mode");
     return ret;
   }
-  // Turn on display with PWM 14/16
-  ret = bct3640_write_command(dev,  BCT3640_CMD_DISPLAY_CONTROL |
-                                    BCT3640_DISPLAY_ON |
-                                    BCT3640_DISPLAY_PWM_14_16);
-  if (ret < 0)
-  {
-    LOG_ERR("Failed to turn on display");
-    return ret;
+  // Set brightness using Kconfig option
+  ret = bct3640_write_command(dev, BCT3640_CMD_DISPLAY_CONTROL | BCT3640_DISPLAY_ON | CONFIG_BCT3640_BRIGHTNESS);
+  if (ret < 0) {
+      LOG_ERR("Failed to set brightness and turn on display");
+      return ret;
   }
 
   // Clear display

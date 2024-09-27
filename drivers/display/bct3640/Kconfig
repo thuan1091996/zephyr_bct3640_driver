@@ -1,5 +1,53 @@
-config BCT3640
+menuconfig BCT3640
     bool "BCT3640 LED Display Driver"
+    default y
     depends on SPI
     help
-      Enable driver for BCT3640 LED Display Driver.
+      Enable driver for BCT3640 LED Display.
+
+if BCT3640
+
+choice BCT3640_BRIGHTNESS
+    prompt "Default BCT3640 brightness"
+    default BCT3640_BRIGHTNESS_14_16
+    help
+        This option sets the default brightness for the BCT3640 display.
+
+config BCT3640_BRIGHTNESS_1_16
+    bool "1/16 (Dimmest)"
+
+config BCT3640_BRIGHTNESS_2_16
+    bool "2/16"
+
+config BCT3640_BRIGHTNESS_4_16
+    bool "4/16"
+
+config BCT3640_BRIGHTNESS_10_16
+    bool "10/16"
+
+config BCT3640_BRIGHTNESS_11_16
+    bool "11/16"
+
+config BCT3640_BRIGHTNESS_12_16
+    bool "12/16"
+
+config BCT3640_BRIGHTNESS_13_16
+    bool "13/16"
+
+config BCT3640_BRIGHTNESS_14_16
+    bool "14/16 (Brightest)"
+
+endchoice
+
+config BCT3640_BRIGHTNESS
+    hex
+    default 0x00 if BCT3640_BRIGHTNESS_1_16
+    default 0x01 if BCT3640_BRIGHTNESS_2_16
+    default 0x02 if BCT3640_BRIGHTNESS_4_16
+    default 0x03 if BCT3640_BRIGHTNESS_10_16
+    default 0x04 if BCT3640_BRIGHTNESS_11_16
+    default 0x05 if BCT3640_BRIGHTNESS_12_16
+    default 0x06 if BCT3640_BRIGHTNESS_13_16
+    default 0x07 if BCT3640_BRIGHTNESS_14_16
+
+endif # BCT3640
